@@ -1,4 +1,6 @@
 import { Tabs } from "expo-router";
+import { View, Text, StyleSheet } from "react-native";
+import { Ionicons } from "@expo/vector-icons";
 
 export default function TabsLayout() {
   return (
@@ -19,15 +21,6 @@ export default function TabsLayout() {
           title: "Início",
           tabBarIcon: ({ color, size }) => (
             <Ionicons name="home" size={size} color={color} />
-          ),
-        }}
-      />
-      <Tabs.Screen
-        name="feed"
-        options={{
-          title: "Feed",
-          tabBarIcon: ({ color, size }) => (
-            <Ionicons name="newspaper" size={size} color={color} />
           ),
         }}
       />
