@@ -1,140 +1,203 @@
-import React from "react";
-import { View, Text, StyleSheet, ScrollView } from "react-native";
+import React, { useState } from "react";
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from "react-native";
+import { LinearGradient } from "expo-linear-gradient";
 import { useAuth } from "../../contexts/AuthContext";
+import { useRouter } from "expo-router";
 
 export default function HomeScreen() {
   const { user } = useAuth();
+  const router = useRouter();
+  const [selectedCategory, setSelectedCategory] = useState("Músicas");
+
+  const handleCategoryPress = (category) => {
+    if (category === "Todas as frases") {
+      router.push("/(tabs)/feed");
+    } else {
+      setSelectedCategory(category);
+    }
+  };
+
+  const categories = ["Todas as frases", "Músicas", "Filmes", "Séries", "Livros", "Citações"];
+  
+  const quotes = [
+    {
+      id: 1,
+      text: "Mas lembre-se:\nAcontece o que aconteça\nNada como um dia após o outro dia",
+      author: "Sou + Você",
+      detail: "Racionais MC's",
+      colors: ["#7799FC", "#B8A5F3"],
+    },
+    {
+      id: 2,
+      text: "A vida é como andar de bicicleta. Para manter o equilíbrio, você precisa continuar se movendo",
+      author: "Albert Einstein",
+      detail: "Físico",
+      colors: ["#B8A5F3", "#E5B8F4"],
+    },
+    {
+      id: 3,
+      text: "O sucesso é ir de fracasso em fracasso sem perder o entusiasmo",
+      author: "Winston Churchill",
+      detail: "Estadista",
+      colors: ["#9c9df5", "#CBABF1"],
+    },
+  ];
 
   return (
-    <ScrollView style={styles.container}>
-      <View style={styles.content}>
-        <Text style={styles.emoji}>👋</Text>
-        <Text style={styles.title}>Bem-vindo(a)!</Text>
-        <Text style={styles.userName}>{user?.name}</Text>
+    <View style={styles.container}>
+      <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
+        <View style={styles.content}>
+          <Text style={styles.sectionTitle}>Citações</Text>
+          
+          <Text style={styles.mainTitle}>Principais Frases</Text>
+          
+          <ScrollView 
+            horizontal 
+            showsHorizontalScrollIndicator={false}
+            style={styles.categoriesContainer}
+            contentContainerStyle={styles.categoriesContent}
+          >
+            {categories.map((category) => (
+              <TouchableOpacity
+                key={category}
+                style={[
+                  styles.categoryButton,
+                  selectedCategory === category && styles.categoryButtonActive,
+                ]}
+                onPress={() => handleCategoryPress(category)}
+              >
+                <Text
+                  style={[
+                    styles.categoryText,
+                    selectedCategory === category && styles.categoryTextActive,
+                  ]}
+                >
+                  {category}
+                </Text>
+              </TouchableOpacity>
+            ))}
+          </ScrollView>
 
-        <View style={styles.card}>
-          <Text style={styles.cardTitle}>✅ Você está autenticado!</Text>
-          <Text style={styles.cardText}>
-            Esta é uma rota privada protegida pelo Expo Router. Você só consegue
-            acessar esta tela porque fez login com sucesso.
-          </Text>
+          <ScrollView 
+            horizontal 
+            showsHorizontalScrollIndicator={false}
+            style={styles.quotesContainer}
+            contentContainerStyle={styles.quotesContent}
+          >
+            {quotes.map((quote) => (
+              <LinearGradient
+                key={quote.id}
+                colors={quote.colors}
+                style={styles.quoteCard}
+              >
+                <Text style={styles.quoteIcon}>❝</Text>
+                <Text style={styles.quoteText}>{quote.text}</Text>
+                <Text style={styles.quoteIcon}>❞</Text>
+                <View style={styles.quoteFooter}>
+                  <Text style={styles.quoteAuthor}>{quote.author}</Text>
+                  <Text style={styles.quoteDetail}>{quote.detail}</Text>
+                </View>
+              </LinearGradient>
+            ))}
+          </ScrollView>
         </View>
-
-        <View style={styles.infoCard}>
-          <Text style={styles.infoTitle}>🎯 Recursos Implementados:</Text>
-          <Text style={styles.infoItem}>✓ Expo Router (navegação moderna)</Text>
-          <Text style={styles.infoItem}>
-            ✓ AsyncStorage (persistência de dados)
-          </Text>
-          <Text style={styles.infoItem}>✓ Rotas privadas automáticas</Text>
-          <Text style={styles.infoItem}>✓ Cadastro de usuários</Text>
-          <Text style={styles.infoItem}>✓ Login persistente</Text>
-          <Text style={styles.infoItem}>✓ Validação de dados</Text>
-        </View>
-
-        <View style={styles.tipCard}>
-          <Text style={styles.tipTitle}>💡 Dica:</Text>
-          <Text style={styles.tipText}>
-            Seus dados ficam salvos mesmo se você fechar o app! Use o botão
-            "Sair" no perfil para fazer logout.
-          </Text>
-        </View>
-      </View>
-    </ScrollView>
+      </ScrollView>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#f5f5f5",
+    backgroundColor: "#FFFFFF",
+  },
+  scrollView: {
+    flex: 1,
   },
   content: {
-    flex: 1,
-    padding: 20,
-    paddingTop: 60,
+    paddingTop: 20,
+    paddingBottom: 30,
   },
-  emoji: {
-    fontSize: 80,
-    textAlign: "center",
-    marginBottom: 20,
-  },
-  title: {
-    fontSize: 32,
-    fontWeight: "bold",
-    color: "#333",
-    marginBottom: 10,
-    textAlign: "center",
-  },
-  userName: {
-    fontSize: 24,
-    color: "#007AFF",
-    fontWeight: "600",
-    marginBottom: 30,
-    textAlign: "center",
-  },
-  card: {
-    backgroundColor: "#fff",
-    borderRadius: 12,
-    padding: 20,
-    marginBottom: 20,
-    borderWidth: 1,
-    borderColor: "#ddd",
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 3.84,
-    elevation: 5,
-  },
-  cardTitle: {
-    fontSize: 18,
-    fontWeight: "bold",
-    color: "#333",
-    marginBottom: 10,
-    textAlign: "center",
-  },
-  cardText: {
-    fontSize: 14,
+  sectionTitle: {
+    fontSize: 16,
     color: "#666",
-    textAlign: "center",
-    lineHeight: 20,
-  },
-  infoCard: {
-    backgroundColor: "#E3F2FD",
-    borderRadius: 12,
-    padding: 20,
-    marginBottom: 20,
-    borderWidth: 1,
-    borderColor: "#90CAF9",
-  },
-  infoTitle: {
-    fontSize: 16,
-    fontWeight: "bold",
-    color: "#1976D2",
-    marginBottom: 15,
-  },
-  infoItem: {
-    fontSize: 14,
-    color: "#1565C0",
-    marginBottom: 8,
-    lineHeight: 20,
-  },
-  tipCard: {
-    backgroundColor: "#FFF3E0",
-    borderRadius: 12,
-    padding: 20,
-    borderWidth: 1,
-    borderColor: "#FFB74D",
-  },
-  tipTitle: {
-    fontSize: 16,
-    fontWeight: "bold",
-    color: "#F57C00",
+    marginLeft: 20,
     marginBottom: 10,
   },
-  tipText: {
+  mainTitle: {
+    fontSize: 24,
+    fontWeight: "bold",
+    color: "#000",
+    marginLeft: 20,
+    marginBottom: 20,
+  },
+  categoriesContainer: {
+    marginBottom: 20,
+  },
+  categoriesContent: {
+    paddingHorizontal: 20,
+    gap: 10,
+  },
+  categoryButton: {
+    paddingHorizontal: 20,
+    paddingVertical: 8,
+    borderRadius: 20,
+    borderWidth: 1,
+    borderColor: "#7799FC",
+    backgroundColor: "#FFFFFF",
+    marginRight: 10,
+  },
+  categoryButtonActive: {
+    backgroundColor: "#7799FC",
+  },
+  categoryText: {
     fontSize: 14,
-    color: "#E65100",
-    lineHeight: 20,
+    color: "#7799FC",
+    fontWeight: "500",
+  },
+  categoryTextActive: {
+    color: "#FFFFFF",
+  },
+  quotesContainer: {
+    marginTop: 10,
+  },
+  quotesContent: {
+    paddingHorizontal: 20,
+    gap: 15,
+  },
+  quoteCard: {
+    width: 280,
+    minHeight: 380,
+    borderRadius: 20,
+    padding: 25,
+    marginRight: 15,
+    justifyContent: "space-between",
+  },
+  quoteIcon: {
+    fontSize: 40,
+    color: "#FFFFFF",
+    opacity: 0.8,
+  },
+  quoteText: {
+    fontSize: 18,
+    color: "#FFFFFF",
+    lineHeight: 28,
+    fontWeight: "500",
+    flex: 1,
+    marginVertical: 20,
+  },
+  quoteFooter: {
+    marginTop: 20,
+  },
+  quoteAuthor: {
+    fontSize: 16,
+    color: "#FFFFFF",
+    fontWeight: "bold",
+    marginBottom: 4,
+  },
+  quoteDetail: {
+    fontSize: 14,
+    color: "#FFFFFF",
+    opacity: 0.9,
   },
 });
