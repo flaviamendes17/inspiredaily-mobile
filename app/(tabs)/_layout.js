@@ -1,27 +1,26 @@
 import { Tabs } from "expo-router";
-import { View, Text, StyleSheet } from "react-native";
-import { Ionicons } from "@expo/vector-icons";
+import { Text, TouchableOpacity, View, StyleSheet } from "react-native";
 
 export default function TabsLayout() {
   return (
     <Tabs
       screenOptions={{
         headerShown: false,
-        tabBarActiveTintColor: "#007AFF",
-        tabBarInactiveTintColor: "#8E8E93",
         tabBarStyle: {
           backgroundColor: "#fff",
           borderTopWidth: 1,
+          borderTopColor: "#e0e0e0",
+          height: 60,
         },
+        tabBarActiveTintColor: "#b287e2ff",
+        tabBarInactiveTintColor: "#888",
       }}
     >
       <Tabs.Screen
         name="home"
         options={{
-          title: "Início",
-          tabBarIcon: ({ color, size }) => (
-            <Ionicons name="home" size={size} color={color} />
-          ),
+          title: "Home",
+          tabBarIcon: ({ color }) => <Text style={{ fontSize: 24 }}>🏠</Text>,
         }}
       />
       <Tabs.Screen
@@ -40,9 +39,7 @@ export default function TabsLayout() {
         name="profile"
         options={{
           title: "Perfil",
-          tabBarIcon: ({ color, size }) => (
-            <Ionicons name="person" size={size} color={color} />
-          ),
+          tabBarIcon: ({ color }) => <Text style={{ fontSize: 24 }}>👤</Text>,
         }}
       />
     </Tabs>
@@ -51,7 +48,7 @@ export default function TabsLayout() {
 
 const styles = StyleSheet.create({
   createButton: {
-    backgroundColor: "#7799FC",
+    backgroundColor: "#e8b7f5ff",
     width: 56,
     height: 56,
     borderRadius: 28,
