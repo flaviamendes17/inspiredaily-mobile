@@ -2,23 +2,15 @@ import React, { useState } from "react";
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 import { useAuth } from "../../contexts/AuthContext";
-import { useRouter } from "expo-router";
+
 
 export default function HomeScreen() {
   const { user } = useAuth();
-  const router = useRouter();
   const [selectedCategory, setSelectedCategory] = useState("Músicas");
 
-  const handleCategoryPress = (category) => {
-    if (category === "Todas as frases") {
-      router.push("/feed");
-    } else {
-      setSelectedCategory(category);
-    }
-  };
 
   const categories = ["Todas as frases", "Músicas", "Filmes", "Séries", "Livros", "Citações"];
-  
+ 
   const quotes = [
     {
       id: 1,
@@ -43,16 +35,17 @@ export default function HomeScreen() {
     },
   ];
 
+
   return (
     <View style={styles.container}>
       <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
         <View style={styles.content}>
           <Text style={styles.sectionTitle}>Citações</Text>
-          
+         
           <Text style={styles.mainTitle}>Principais Frases</Text>
-          
-          <ScrollView 
-            horizontal 
+         
+          <ScrollView
+            horizontal
             showsHorizontalScrollIndicator={false}
             style={styles.categoriesContainer}
             contentContainerStyle={styles.categoriesContent}
@@ -64,7 +57,7 @@ export default function HomeScreen() {
                   styles.categoryButton,
                   selectedCategory === category && styles.categoryButtonActive,
                 ]}
-                onPress={() => handleCategoryPress(category)}
+                onPress={() => setSelectedCategory(category)}
               >
                 <Text
                   style={[
@@ -78,8 +71,9 @@ export default function HomeScreen() {
             ))}
           </ScrollView>
 
-          <ScrollView 
-            horizontal 
+
+          <ScrollView
+            horizontal
             showsHorizontalScrollIndicator={false}
             style={styles.quotesContainer}
             contentContainerStyle={styles.quotesContent}
@@ -105,6 +99,7 @@ export default function HomeScreen() {
     </View>
   );
 }
+
 
 const styles = StyleSheet.create({
   container: {
@@ -201,3 +196,6 @@ const styles = StyleSheet.create({
     opacity: 0.9,
   },
 });
+
+
+
