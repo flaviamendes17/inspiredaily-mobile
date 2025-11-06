@@ -1,11 +1,12 @@
 import React, { useState } from "react";
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
-import { useAuth } from "../../contexts/AuthContext";
+import { useAuth } from "../contexts/AuthContext";
+import { useRouter } from "expo-router";
 
-
-export default function HomeScreen() {
+export default function FeedScreen() {
   const { user } = useAuth();
+  const router = useRouter();
   const [selectedCategory, setSelectedCategory] = useState("Músicas");
 
 
@@ -38,11 +39,19 @@ export default function HomeScreen() {
 
   return (
     <View style={styles.container}>
+      <View style={styles.header}>
+        <TouchableOpacity 
+          style={styles.backButton} 
+          onPress={() => router.push("/(tabs)/home")}
+        >
+          <Text style={styles.backButtonText}>← Voltar</Text>
+        </TouchableOpacity>
+      </View>
       <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
         <View style={styles.content}>
           <Text style={styles.sectionTitle}>Citações</Text>
          
-          <Text style={styles.mainTitle}>Principais Frases</Text>
+          <Text style={styles.mainTitle}>Todas as Frases</Text>
          
           <ScrollView
             horizontal
@@ -105,6 +114,22 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: "#FFFFFF",
+  },
+  header: {
+    paddingTop: 50,
+    paddingHorizontal: 20,
+    paddingBottom: 10,
+    backgroundColor: "#FFFFFF",
+    borderBottomWidth: 1,
+    borderBottomColor: "#E5E5E5",
+  },
+  backButton: {
+    alignSelf: "flex-start",
+  },
+  backButtonText: {
+    fontSize: 16,
+    color: "#007AFF",
+    fontWeight: "500",
   },
   scrollView: {
     flex: 1,
