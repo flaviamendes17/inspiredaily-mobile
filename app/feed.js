@@ -1,13 +1,15 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 import { useAuth } from "../contexts/AuthContext";
-import { useRouter } from "expo-router";
+import { useRouter, useFocusEffect } from "expo-router";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 export default function FeedScreen() {
   const { user } = useAuth();
   const router = useRouter();
   const [selectedCategory, setSelectedCategory] = useState("Todas as frases");
+  const [favorites, setFavorites] = useState([]);
 
 
   const categories = ["Todas as frases", "Músicas", "Filmes", "Séries", "Livros", "Citações"];
@@ -95,7 +97,23 @@ export default function FeedScreen() {
     },
   ];
 
-  // Filtrar frases baseado na categoria selecionada
+  useFocusEffect(
+    React.useCallback(() => {
+      const loadFavorites = async () => {
+        try {
+          const favData = await AsyncStorage.getItem("favorites");
+          if (favData) {
+            setFavorites(JSON.parse(favData));
+          }
+        } catch (error) {
+          console.error("Erro ao carregar favoritos:", error);
+        }
+      };
+
+      loadFavorites();
+    }, [])
+  );
+
   const filteredQuotes = selectedCategory === "Todas as frases" 
     ? allQuotes 
     : allQuotes.filter(quote => quote.category === selectedCategory);
@@ -160,6 +178,11 @@ export default function FeedScreen() {
                   colors={quote.colors}
                   style={styles.quoteCard}
                 >
+                  {favorites.includes(quote.id) && (
+                    <View style={styles.favoriteIcon}>
+                      <Text>❤️</Text>
+                    </View>
+                  )}
                   <Text style={styles.quoteIcon}>❝</Text>
                   <Text style={styles.quoteText}>{quote.text}</Text>
                   <Text style={styles.quoteIcon}>❞</Text>
@@ -260,6 +283,14 @@ const styles = StyleSheet.create({
     padding: 25,
     marginRight: 15,
     justifyContent: "space-between",
+    position: "relative",
+  },
+  favoriteIcon: {
+    position: "absolute",
+    top: 12,
+    right: 12,
+    zIndex: 10,
+    fontSize: 20,
   },
   quoteIcon: {
     fontSize: 40,

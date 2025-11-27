@@ -2,17 +2,18 @@ import React, { useState, useEffect, useRef } from "react";
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Image, Dimensions } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 import { useAuth } from "../../contexts/AuthContext";
-import { useRouter } from "expo-router";
+import { useRouter, useFocusEffect } from "expo-router";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 export default function HomeScreen() {
   const { user } = useAuth();
   const router = useRouter();
   const [selectedCategory, setSelectedCategory] = useState("Músicas");
+  const [favorites, setFavorites] = useState([]);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const scrollRef = useRef(null);
   const { width: screenWidth } = Dimensions.get('window');
 
-  // Imagens do carrossel
   const carouselImages = [
     require("../../public/Banner - Inspire Daily.png"),
     require("../../public/Banner - Inspire Daily 2.png"),
@@ -20,20 +21,19 @@ export default function HomeScreen() {
     require("../../public/Banner - Inspire Daily 4.png"),
   ];
 
-  // Auto-scroll do carrossel
   useEffect(() => {
     const interval = setInterval(() => {
       setCurrentImageIndex((prevIndex) => {
         const nextIndex = (prevIndex + 1) % carouselImages.length;
         if (scrollRef.current) {
           scrollRef.current.scrollTo({
-            x: nextIndex * (screenWidth - 20), // largura da imagem + margin
+            x: nextIndex * (screenWidth - 20),
             animated: true,
           });
         }
         return nextIndex;
       });
-    }, 3000); // Muda a cada 3 segundos
+    }, 3000);
 
     return () => clearInterval(interval);
   }, [carouselImages.length, screenWidth]);
@@ -131,6 +131,23 @@ export default function HomeScreen() {
     },
   ];
 
+  useFocusEffect(
+    React.useCallback(() => {
+      const loadFavorites = async () => {
+        try {
+          const favData = await AsyncStorage.getItem("favorites");
+          if (favData) {
+            setFavorites(JSON.parse(favData));
+          }
+        } catch (error) {
+          console.error("Erro ao carregar favoritos:", error);
+        }
+      };
+
+      loadFavorites();
+    }, [])
+  );
+
   const filteredQuotes = selectedCategory === "Músicas" 
     ? allQuotes.filter(q => q.category === "Músicas")
     : allQuotes.filter(q => q.category === selectedCategory);
@@ -177,10 +194,7 @@ export default function HomeScreen() {
             ))}
           </ScrollView>
 
-          {/* Separador */}
           <View style={styles.separator} />
-
-          {/* Carrossel de Imagens */}
           <View style={styles.carouselContainer}>
             <ScrollView
               ref={scrollRef}
@@ -207,7 +221,7 @@ export default function HomeScreen() {
               ))}
             </ScrollView>
             
-            {/* Indicadores de posição */}
+
             <View style={styles.indicatorContainer}>
               {carouselImages.map((_, index) => (
                 <View
@@ -235,6 +249,11 @@ export default function HomeScreen() {
                   colors={quote.colors}
                   style={styles.quoteCard}
                 >
+                  {favorites.includes(quote.id) && (
+                    <View style={styles.favoriteIcon}>
+                      <Text>❤️</Text>
+                    </View>
+                  )}
                   <Text style={styles.quoteIcon}>❝</Text>
                   <Text style={styles.quoteText}>{quote.text}</Text>
                   <Text style={styles.quoteIcon}>❞</Text>
@@ -329,6 +348,7 @@ const styles = StyleSheet.create({
     padding: 25,
     marginRight: 15,
     justifyContent: "space-between",
+    position: 'relative',
   },
   quoteIcon: {
     fontSize: 40,
@@ -357,13 +377,18 @@ const styles = StyleSheet.create({
     color: "#FFFFFF",
     opacity: 0.9,
   },
+  favoriteIcon: {
+    position: 'absolute',
+    top: 12,
+    right: 12,
+    zIndex: 10,
+  },
   separator: {
     height: 1,
     backgroundColor: "#f0f0f0",
     marginHorizontal: 20,
     marginVertical: 20,
   },
-  // Estilos do carrossel
   carouselContainer: {
     marginTop: 30,
     marginBottom: 30,
