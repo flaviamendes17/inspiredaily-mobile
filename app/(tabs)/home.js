@@ -1,6 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Image, Dimensions } from "react-native";
-import { LinearGradient } from "expo-linear-gradient";
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Image, Dimensions, Modal } from "react-native";
 import { useAuth } from "../../contexts/AuthContext";
 import { useRouter } from "expo-router";
 
@@ -9,6 +8,8 @@ export default function HomeScreen() {
   const router = useRouter();
   const [selectedCategory, setSelectedCategory] = useState("Músicas");
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  const [selectedDate, setSelectedDate] = useState(new Date());
+  const [showQuote, setShowQuote] = useState(false);
   const scrollRef = useRef(null);
   const { width: screenWidth } = Dimensions.get('window');
 
@@ -19,6 +20,58 @@ export default function HomeScreen() {
     require("../../public/Banner - Inspire Daily 3.png"),
     require("../../public/Banner - Inspire Daily 4.png"),
   ];
+
+  // Dias com frases especiais (simulação)
+  const inspirationDays = [1, 5, 10, 15, 20, 25, 27]; // dias do mês com conteúdo especial
+
+  // Frases para cada dia especial (versões curtas)
+  const dailyQuotes = {
+    1: {
+      text: "Cada novo dia é uma nova oportunidade.",
+      author: "Dalai Lama"
+    },
+    5: {
+      text: "Sucesso é a soma de pequenos esforços diários.",
+      author: "Robert Collier"
+    },
+    10: {
+      text: "A vida é 10% o que acontece, 90% como reagimos.",
+      author: "Charles R. Swindoll"
+    },
+    15: {
+      text: "Agarre ocasiões comuns e as torne grandiosas.",
+      author: "Orison Swett Marden"
+    },
+    20: {
+      text: "O futuro pertence aos que acreditam em seus sonhos.",
+      author: "Eleanor Roosevelt"
+    },
+    25: {
+      text: "Ame o que você faz para fazer um excelente trabalho.",
+      author: "Steve Jobs"
+    },
+    27: {
+      text: "Nada como um dia após o outro dia.",
+      author: "Racionais MC's"
+    }
+  };
+
+  // Função para obter a frase do dia selecionado
+  const getDayQuote = (day) => {
+    return dailyQuotes[day] || {
+      text: "Inspire-se todos os dias!",
+      author: "Inspire Daily"
+    };
+  };
+
+  // Função para tratar clique na data
+  const handleDatePress = (date) => {
+    setSelectedDate(date);
+    // Mostra a frase apenas se a data tiver inspiração
+    const hasInspiration = inspirationDays.includes(date.getDate()) && 
+                          date.getMonth() === new Date().getMonth();
+    setShowQuote(hasInspiration);
+  };
 
   // Auto-scroll do carrossel
   useEffect(() => {
@@ -38,103 +91,41 @@ export default function HomeScreen() {
     return () => clearInterval(interval);
   }, [carouselImages.length, screenWidth]);
 
+  // Função para gerar dias do mês
+  const generateCalendarDays = () => {
+    const today = new Date();
+    const year = today.getFullYear();
+    const month = today.getMonth();
+    const firstDay = new Date(year, month, 1);
+    const lastDay = new Date(year, month + 1, 0);
+    const startDate = new Date(firstDay);
+    startDate.setDate(startDate.getDate() - firstDay.getDay());
+    
+    const days = [];
+    for (let i = 0; i < 42; i++) {
+      const currentDate = new Date(startDate);
+      currentDate.setDate(startDate.getDate() + i);
+      days.push(currentDate);
+    }
+    return days;
+  };
+
+  const calendarDays = generateCalendarDays();
+  const monthNames = [
+    "Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho",
+    "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"
+  ];
+  const dayNames = ["Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sáb"];
+
   const handleCategoryPress = (category) => {
     if (category === "Todas as frases") {
-      router.push("/feed");
+      router.push("/(tabs)/feed");
     } else {
       setSelectedCategory(category);
     }
   };
 
   const categories = ["Todas as frases", "Músicas", "Filmes", "Séries", "Livros", "Citações"];
-
-  const allQuotes = [
-    {
-      id: 1,
-      text: "Mas lembre-se:\nAcontece o que aconteça\nNada como um dia após o outro dia",
-      author: "Sou + Você",
-      detail: "Racionais MC's",
-      colors: ["#7799FC", "#B8A5F3"],
-      category: "Músicas",
-    },
-    {
-      id: 2,
-      text: "A vida é como andar de bicicleta. Para manter o equilíbrio, você precisa continuar se movendo",
-      author: "Albert Einstein",
-      detail: "Físico",
-      colors: ["#B8A5F3", "#E5B8F4"],
-      category: "Citações",
-    },
-    {
-      id: 3,
-      text: "O sucesso é ir de fracasso em fracasso sem perder o entusiasmo",
-      author: "Winston Churchill",
-      detail: "Estadista",
-      colors: ["#9c9df5", "#CBABF1"],
-      category: "Citações",
-    },
-    {
-      id: 4,
-      text: "A única maneira de fazer um excelente trabalho é amar o que você faz",
-      author: "Steve Jobs",
-      detail: "Empresário",
-      colors: ["#FF6B6B", "#FF8E8E"],
-      category: "Citações",
-    },
-    {
-      id: 5,
-      text: "Não é o mais forte que sobrevive, nem o mais inteligente, mas o que melhor se adapta às mudanças",
-      author: "Charles Darwin",
-      detail: "Naturalista",
-      colors: ["#4ECDC4", "#44A08D"],
-      category: "Livros",
-    },
-    {
-      id: 6,
-      text: "O futuro pertence àqueles que acreditam na beleza de seus sonhos",
-      author: "Eleanor Roosevelt",
-      detail: "Primeira-dama",
-      colors: ["#F093FB", "#F5576C"],
-      category: "Citações",
-    },
-    {
-      id: 7,
-      text: "Seja você mesmo; todas as outras pessoas já existem",
-      author: "Oscar Wilde",
-      detail: "Escritor",
-      colors: ["#43E97B", "#38F9D7"],
-      category: "Citações",
-    },
-    {
-      id: 8,
-      text: "A imaginação é mais importante que o conhecimento",
-      author: "Albert Einstein",
-      detail: "Físico",
-      colors: ["#FA709A", "#FEE140"],
-      category: "Filmes",
-    },
-    {
-      id: 9,
-      text: "Acredite em si mesmo e chegará um dia em que os outros não terão outra escolha senão acreditar com você",
-      author: "Cynthia Kersey",
-      detail: "Autora",
-      colors: ["#667eea", "#764ba2"],
-      category: "Citações",
-    },
-    {
-      id: 10,
-      text: "O que nos desafia é o que nos transforma",
-      author: "Paulo Coelho",
-      detail: "Escritor",
-      colors: ["#ffecd2", "#fcb69f"],
-      category: "Livros",
-    },
-  ];
-
-  const filteredQuotes = selectedCategory === "Músicas" 
-    ? allQuotes.filter(q => q.category === "Músicas")
-    : allQuotes.filter(q => q.category === selectedCategory);
-  
   
   return (
     <View style={styles.container}>
@@ -148,6 +139,45 @@ export default function HomeScreen() {
               style={styles.headerIcon}
             />
             <Text style={styles.mainTitle}>INSPIRE DAILY</Text>
+          </View>
+          
+          {/* Carrossel de Imagens */}
+          <View style={styles.carouselContainer}>
+            <ScrollView
+              ref={scrollRef}
+              horizontal
+              showsHorizontalScrollIndicator={false}
+              onScroll={(event) => {
+                const newIndex = Math.round(
+                  event.nativeEvent.contentOffset.x / (screenWidth - 20)
+                );
+                setCurrentImageIndex(newIndex);
+              }}
+              style={styles.carouselScrollView}
+              contentContainerStyle={styles.carouselContent}
+              snapToInterval={screenWidth - 20}
+              snapToAlignment="start"
+              decelerationRate="fast"
+            >
+              {carouselImages.map((image, index) => (
+                <View key={index} style={styles.carouselImageContainer}>
+                  <Image source={image} style={styles.carouselImage} resizeMode="contain" />
+                </View>
+              ))}
+            </ScrollView>
+            
+            {/* Indicadores */}
+            <View style={styles.indicatorContainer}>
+              {carouselImages.map((_, index) => (
+                <View
+                  key={index}
+                  style={[
+                    styles.indicator,
+                    currentImageIndex === index && styles.indicatorActive,
+                  ]}
+                />
+              ))}
+            </View>
           </View>
           
           <ScrollView 
@@ -176,78 +206,99 @@ export default function HomeScreen() {
               </TouchableOpacity>
             ))}
           </ScrollView>
+          {/* Título Frase do Dia */}
+          <Text style={styles.sectionTitle}>Frase do Dia</Text>
 
-          {/* Separador */}
-          <View style={styles.separator} />
+          {/* Calendário e Frase do Dia */}
+          <View style={styles.calendarMainContainer}>
+            {/* Calendário */}
+            <View style={styles.calendarContainer}>
+              <Text style={styles.calendarTitle}>Calendário</Text>
+              <Text style={styles.calendarSubtitle}>
+                {monthNames[new Date().getMonth()]} {new Date().getFullYear()}
+              </Text>
+              
+              {/* Cabeçalho dos dias da semana */}
+              <View style={styles.calendarHeader}>
+                {dayNames.map((day) => (
+                  <Text key={day} style={styles.dayHeader}>
+                    {day}
+                  </Text>
+                ))}
+              </View>
+              
+              {/* Grid do calendário */}
+              <View style={styles.calendarGrid}>
+                {calendarDays.map((date, index) => {
+                  const isCurrentMonth = date.getMonth() === new Date().getMonth();
+                  const isToday = date.toDateString() === new Date().toDateString();
+                  const hasInspiration = inspirationDays.includes(date.getDate()) && isCurrentMonth;
+                  const isSelected = selectedDate.toDateString() === date.toDateString();
+                  
+                  return (
+                    <TouchableOpacity
+                      key={index}
+                      style={[
+                        styles.calendarDay,
+                        isCurrentMonth && styles.currentMonth,
+                        isToday && styles.today,
+                        hasInspiration && styles.inspirationDay,
+                        isSelected && styles.selectedDay,
+                      ]}
+                      onPress={() => handleDatePress(date)}
+                    >
+                      <Text
+                        style={[
+                          styles.calendarDayText,
+                          !isCurrentMonth && styles.otherMonthText,
+                          isToday && styles.todayText,
+                          hasInspiration && styles.inspirationDayText,
+                          isSelected && styles.selectedDayText,
+                        ]}
+                      >
+                        {date.getDate()}
+                      </Text>
+                      {hasInspiration && (
+                        <View style={styles.inspirationDot} />
+                      )}
+                    </TouchableOpacity>
+                  );
+                })}
+              </View>
+            </View>
 
-          {/* Carrossel de Imagens */}
-          <View style={styles.carouselContainer}>
-            <ScrollView
-              ref={scrollRef}
-              horizontal
-              showsHorizontalScrollIndicator={false}
-              onScroll={(event) => {
-                const newIndex = Math.round(
-                  event.nativeEvent.contentOffset.x / (screenWidth - 20)
-                );
-                setCurrentImageIndex(newIndex);
-              }}
-              scrollEventThrottle={50}
-              style={styles.carouselScrollView}
-              contentContainerStyle={styles.carouselContent}
-            >
-              {carouselImages.map((image, index) => (
-                <View key={index} style={styles.carouselImageContainer}>
-                  <Image
-                    source={image}
-                    style={styles.carouselImage}
-                    resizeMode="contain"
-                  />
-                </View>
-              ))}
-            </ScrollView>
-            
-            {/* Indicadores de posição */}
-            <View style={styles.indicatorContainer}>
-              {carouselImages.map((_, index) => (
-                <View
-                  key={index}
-                  style={[
-                    styles.indicator,
-                    currentImageIndex === index && styles.indicatorActive,
-                  ]}
-                />
-              ))}
+            {/* Frase do dia selecionado - ao lado direito */}
+          </View>
+        </View>
+
+        {/* Modal da frase do dia */}
+        <Modal
+          animationType="fade"
+          transparent={true}
+          visible={showQuote}
+          onRequestClose={() => setShowQuote(false)}
+        >
+          <View style={styles.modalOverlay}>
+            <View style={styles.modalContent}>
+              <TouchableOpacity 
+                style={styles.closeButton} 
+                onPress={() => setShowQuote(false)}
+              >
+                <Text style={styles.closeButtonText}>×</Text>
+              </TouchableOpacity>
+              
+              <Text style={styles.modalTitle}>Frase do dia {selectedDate.getDate()}</Text>
+              
+              <Text style={styles.modalQuoteText}>
+                "{getDayQuote(selectedDate.getDate()).text}"
+              </Text>
+              
+              <Text style={styles.modalQuoteAuthor}>
+                — {getDayQuote(selectedDate.getDate()).author}
+              </Text>
             </View>
           </View>
-          <ScrollView
-            horizontal
-            showsHorizontalScrollIndicator={false}
-            style={styles.quotesContainer}
-            contentContainerStyle={styles.quotesContent}
-          >
-            {filteredQuotes.map((quote) => (
-              <TouchableOpacity
-                key={quote.id}
-                onPress={() => router.push(`/details?id=${quote.id}`)}
-              >
-                <LinearGradient
-                  colors={quote.colors}
-                  style={styles.quoteCard}
-                >
-                  <Text style={styles.quoteIcon}>❝</Text>
-                  <Text style={styles.quoteText}>{quote.text}</Text>
-                  <Text style={styles.quoteIcon}>❞</Text>
-                  <View style={styles.quoteFooter}>
-                    <Text style={styles.quoteAuthor}>{quote.author}</Text>
-                    <Text style={styles.quoteDetail}>{quote.detail}</Text>
-                  </View>
-                </LinearGradient>
-              </TouchableOpacity>
-            ))}
-          </ScrollView>
-
-        </View>
+        </Modal>
       </ScrollView>
     </View>
   );
@@ -266,10 +317,12 @@ const styles = StyleSheet.create({
     paddingBottom: 30,
   },
   sectionTitle: {
-    fontSize: 16,
-    color: "#666",
+    fontSize: 18,
+    fontWeight: "bold",
+    color: "#cf97e6ff",
     marginLeft: 20,
-    marginBottom: 10,
+    marginBottom: 15,
+    marginTop: 10,
   },
   headerContainer: {
     flexDirection: "row",
@@ -315,54 +368,6 @@ const styles = StyleSheet.create({
   categoryTextActive: {
     color: "#FFFFFF",
   },
-  quotesContainer: {
-    marginTop: 10,
-  },
-  quotesContent: {
-    paddingHorizontal: 20,
-    gap: 15,
-  },
-  quoteCard: {
-    width: 280,
-    minHeight: 380,
-    borderRadius: 20,
-    padding: 25,
-    marginRight: 15,
-    justifyContent: "space-between",
-  },
-  quoteIcon: {
-    fontSize: 40,
-    color: "#FFFFFF",
-    opacity: 0.8,
-  },
-  quoteText: {
-    fontSize: 18,
-    color: "#FFFFFF",
-    lineHeight: 28,
-    fontWeight: "500",
-    flex: 1,
-    marginVertical: 20,
-  },
-  quoteFooter: {
-    marginTop: 20,
-  },
-  quoteAuthor: {
-    fontSize: 16,
-    color: "#FFFFFF",
-    fontWeight: "bold",
-    marginBottom: 4,
-  },
-  quoteDetail: {
-    fontSize: 14,
-    color: "#FFFFFF",
-    opacity: 0.9,
-  },
-  separator: {
-    height: 1,
-    backgroundColor: "#f0f0f0",
-    marginHorizontal: 20,
-    marginVertical: 20,
-  },
   // Estilos do carrossel
   carouselContainer: {
     marginTop: 30,
@@ -376,7 +381,7 @@ const styles = StyleSheet.create({
   },
   carouselImageContainer: {
     width: Dimensions.get('window').width - 40,
-    height: 250,
+    height: 180,
     overflow: 'hidden',
     marginRight: 20,
   },
@@ -402,5 +407,207 @@ const styles = StyleSheet.create({
     width: 12,
     height: 12,
     borderRadius: 6,
+  },
+  // Estilos do calendário
+  calendarMainContainer: {
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginHorizontal: 20,
+    marginBottom: 20,
+  },
+  calendarContainer: {
+    width: 250,
+    backgroundColor: '#f8f9fa',
+    borderRadius: 12,
+    padding: 18,
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
+  },
+  calendarTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: '#333',
+    textAlign: 'center',
+    marginBottom: 5,
+  },
+  calendarSubtitle: {
+    fontSize: 13,
+    color: '#666',
+    textAlign: 'center',
+    marginBottom: 12,
+  },
+  calendarHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    marginBottom: 10,
+  },
+  dayHeader: {
+    fontSize: 12,
+    fontWeight: '600',
+    color: '#666',
+    textAlign: 'center',
+    flex: 1,
+  },
+  calendarGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+  },
+  calendarDay: {
+    width: '14.28%',
+    height: 28,
+    justifyContent: 'center',
+    alignItems: 'center',
+    position: 'relative',
+    marginVertical: 2,
+  },
+  currentMonth: {
+    // Estilo para dias do mês atual
+  },
+  today: {
+    backgroundColor: '#cf97e6ff',
+    borderRadius: 14,
+  },
+  inspirationDay: {
+    backgroundColor: '#e8f4f8',
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: '#87ceeb',
+  },
+  selectedDay: {
+    backgroundColor: '#e8b7f5ff',
+    borderRadius: 12,
+  },
+  calendarDayText: {
+    fontSize: 13,
+    color: '#333',
+    fontWeight: '500',
+  },
+  otherMonthText: {
+    color: '#ccc',
+  },
+  todayText: {
+    color: '#fff',
+    fontWeight: 'bold',
+  },
+  inspirationDayText: {
+    color: '#2c5aa0',
+    fontWeight: 'bold',
+  },
+  selectedDayText: {
+    color: '#fff',
+    fontWeight: 'bold',
+  },
+  inspirationDot: {
+    position: 'absolute',
+    bottom: 2,
+    width: 3,
+    height: 3,
+    borderRadius: 1.5,
+    backgroundColor: '#ff6b6b',
+  },
+  dayQuoteContainer: {
+    padding: 12,
+    backgroundColor: '#fff',
+    borderRadius: 12,
+    borderLeftWidth: 4,
+    borderLeftColor: '#cf97e6ff',
+    justifyContent: 'flex-start',
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.08,
+    shadowRadius: 3,
+    elevation: 2,
+    width: '65%',
+    alignSelf: 'flex-start',
+  },
+  dayQuoteText: {
+    fontSize: 13,
+    color: '#333',
+    lineHeight: 18,
+    fontStyle: 'italic',
+    marginBottom: 8,
+    textAlign: 'left',
+  },
+  dayQuoteAuthor: {
+    fontSize: 11,
+    color: '#666',
+    textAlign: 'right',
+    fontWeight: '500',
+    marginTop: 0,
+  },
+  // Estilos do Modal
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 20,
+  },
+  modalContent: {
+    backgroundColor: '#fff',
+    borderRadius: 20,
+    padding: 25,
+    width: '90%',
+    maxWidth: 350,
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 4,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 10,
+    elevation: 8,
+    position: 'relative',
+  },
+  closeButton: {
+    position: 'absolute',
+    top: 15,
+    right: 20,
+    width: 30,
+    height: 30,
+    borderRadius: 15,
+    backgroundColor: '#f0f0f0',
+    justifyContent: 'center',
+    alignItems: 'center',
+    zIndex: 1,
+  },
+  closeButtonText: {
+    fontSize: 20,
+    color: '#666',
+    fontWeight: 'bold',
+    lineHeight: 20,
+  },
+  modalTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: '#333',
+    textAlign: 'center',
+    marginBottom: 20,
+    marginTop: 10,
+    color: '#cf97e6ff',
+  },
+  modalQuoteText: {
+    fontSize: 16,
+    color: '#333',
+    lineHeight: 24,
+    fontStyle: 'italic',
+    textAlign: 'center',
+    marginBottom: 20,
+    paddingHorizontal: 10,
+  },
+  modalQuoteAuthor: {
+    fontSize: 14,
+    color: '#666',
+    textAlign: 'center',
+    fontWeight: '500',
   },
 });
