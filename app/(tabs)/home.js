@@ -11,7 +11,7 @@ export default function HomeScreen() {
 
   const handleCategoryPress = (category) => {
     if (category === "Todas as frases") {
-      router.push("/(tabs)/feed");
+      router.push("/feed");
     } else {
       setSelectedCategory(category);
     }
