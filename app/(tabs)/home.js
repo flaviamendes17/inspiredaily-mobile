@@ -1,19 +1,20 @@
 import React, { useState, useEffect, useRef } from "react";
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Image, Dimensions, Modal } from "react-native";
 import { useAuth } from "../../contexts/AuthContext";
-import { useRouter } from "expo-router";
+import { useRouter, useFocusEffect } from "expo-router";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 export default function HomeScreen() {
   const { user } = useAuth();
   const router = useRouter();
   const [selectedCategory, setSelectedCategory] = useState("Músicas");
+  const [favorites, setFavorites] = useState([]);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [showQuote, setShowQuote] = useState(false);
   const scrollRef = useRef(null);
   const { width: screenWidth } = Dimensions.get('window');
 
-  // Imagens do carrossel
   const carouselImages = [
     require("../../public/Banner - Inspire Daily.png"),
     require("../../public/Banner - Inspire Daily 2.png"),
@@ -80,13 +81,13 @@ export default function HomeScreen() {
         const nextIndex = (prevIndex + 1) % carouselImages.length;
         if (scrollRef.current) {
           scrollRef.current.scrollTo({
-            x: nextIndex * (screenWidth - 20), // largura da imagem + margin
+            x: nextIndex * (screenWidth - 20),
             animated: true,
           });
         }
         return nextIndex;
       });
-    }, 3000); // Muda a cada 3 segundos
+    }, 3000);
 
     return () => clearInterval(interval);
   }, [carouselImages.length, screenWidth]);

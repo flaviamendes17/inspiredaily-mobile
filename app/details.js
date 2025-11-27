@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   View,
   Text,
@@ -10,6 +10,7 @@ import {
 } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 import { useLocalSearchParams, useRouter } from "expo-router";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const allQuotes = [
   {
@@ -112,12 +113,46 @@ export default function DetailsScreen() {
   const quote = allQuotes.find((q) => q.id === parseInt(id));
   const [isFavorite, setIsFavorite] = useState(false);
 
+  useEffect(() => {
+    const loadFavorites = async () => {
+      try {
+        const favorites = await AsyncStorage.getItem("favorites");
+        if (favorites) {
+          const favoriteIds = JSON.parse(favorites);
+          setIsFavorite(favoriteIds.includes(parseInt(id)));
+        }
+      } catch (error) {
+        console.error("Erro ao carregar favoritos:", error);
+      }
+    };
+
+    loadFavorites();
+  }, [id]);
+
+  const handleFavorite = async () => {
+    try {
+      const favorites = await AsyncStorage.getItem("favorites");
+      let favoriteIds = favorites ? JSON.parse(favorites) : [];
+
+      if (isFavorite) {
+        favoriteIds = favoriteIds.filter((favId) => favId !== parseInt(id));
+      } else {
+        if (!favoriteIds.includes(parseInt(id))) {
+          favoriteIds.push(parseInt(id));
+        }
+      }
+
+      await AsyncStorage.setItem("favorites", JSON.stringify(favoriteIds));
+      setIsFavorite(!isFavorite);
+    } catch (error) {
+      console.error("Erro ao salvar favoritos:", error);
+    }
+  };
+
   const handleShare = () => {
-    // Gerar o link completo
     const currentUrl = typeof window !== 'undefined' ? window.location.href : '';
     const shareLink = `${typeof window !== 'undefined' ? window.location.origin : 'localhost:8081'}/details?id=${id}`;
     
-    // Para web
     if (typeof window !== 'undefined' && navigator.clipboard) {
       navigator.clipboard.writeText(shareLink).then(() => {
         Alert.alert('Sucesso!', 'Link copiado para a área de transferência');
@@ -125,7 +160,6 @@ export default function DetailsScreen() {
         Alert.alert('Erro', 'Não foi possível copiar o link');
       });
     } else {
-      // Fallback para mobile
       Alert.alert('Link para compartilhar', shareLink);
     }
   };
@@ -168,10 +202,15 @@ export default function DetailsScreen() {
             colors={quote.colors}
             style={styles.quoteCardLarge}
           >
+            {isFavorite && (
+              <View style={styles.favoriteIndicator}>
+                <Text>❤️</Text>
+              </View>
+            )}
             <View style={styles.cardHeader}>
               <TouchableOpacity
                 style={styles.favoriteButton}
-                onPress={() => setIsFavorite(!isFavorite)}
+                onPress={handleFavorite}
               >
                 <Text style={styles.favoriteIcon}>
                   {isFavorite ? "❤️" : "🤍"}
@@ -266,6 +305,7 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.15,
     shadowRadius: 8,
     elevation: 5,
+    position: 'relative',
   },
   cardHeader: {
     flexDirection: "row",
@@ -282,6 +322,12 @@ const styles = StyleSheet.create({
   },
   favoriteIcon: {
     fontSize: 20,
+  },
+  favoriteIndicator: {
+    position: 'absolute',
+    top: 12,
+    right: 12,
+    zIndex: 10,
   },
   quoteIconLarge: {
     fontSize: 48,
