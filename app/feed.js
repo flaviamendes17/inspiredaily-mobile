@@ -34,6 +34,55 @@ export default function FeedScreen() {
       detail: "Estadista",
       colors: ["#9c9df5", "#CBABF1"],
     },
+    {
+      id: 4,
+      text: "A única maneira de fazer um excelente trabalho é amar o que você faz",
+      author: "Steve Jobs",
+      detail: "Empresário",
+      colors: ["#FF6B6B", "#FF8E8E"],
+    },
+    {
+      id: 5,
+      text: "Não é o mais forte que sobrevive, nem o mais inteligente, mas o que melhor se adapta às mudanças",
+      author: "Charles Darwin",
+      detail: "Naturalista",
+      colors: ["#4ECDC4", "#44A08D"],
+    },
+    {
+      id: 6,
+      text: "O futuro pertence àqueles que acreditam na beleza de seus sonhos",
+      author: "Eleanor Roosevelt",
+      detail: "Primeira-dama",
+      colors: ["#F093FB", "#F5576C"],
+    },
+    {
+      id: 7,
+      text: "Seja você mesmo; todas as outras pessoas já existem",
+      author: "Oscar Wilde",
+      detail: "Escritor",
+      colors: ["#43E97B", "#38F9D7"],
+    },
+    {
+      id: 8,
+      text: "A imaginação é mais importante que o conhecimento",
+      author: "Albert Einstein",
+      detail: "Físico",
+      colors: ["#FA709A", "#FEE140"],
+    },
+    {
+      id: 9,
+      text: "Acredite em si mesmo e chegará um dia em que os outros não terão outra escolha senão acreditar com você",
+      author: "Cynthia Kersey",
+      detail: "Autora",
+      colors: ["#667eea", "#764ba2"],
+    },
+    {
+      id: 10,
+      text: "O que nos desafia é o que nos transforma",
+      author: "Paulo Coelho",
+      detail: "Escritor",
+      colors: ["#ffecd2", "#fcb69f"],
+    },
   ];
 
 
