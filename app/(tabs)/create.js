@@ -137,6 +137,7 @@ export default function CreateScreen() {
           <Text style={styles.quoteText}>{frase || 'Sua frase aparecerá aqui'}</Text>
           <Text style={styles.metaText}>{autor || ''}{autor && artist ? ' — ' : ''}{artist || ''}</Text>
         </LinearGradient>
+
         </View>
       </View>
     </ScrollView>
@@ -146,13 +147,14 @@ export default function CreateScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#f5f5f5",
+    backgroundColor: "#FFFFFF",
   },
   content: {
     flex: 1,
-    padding: 20,
-    paddingTop: 60,
+    justifyContent: "center",
     alignItems: "center",
+    paddingHorizontal: 30,
+    paddingTop: 100,
   },
   input: {
     width: "100%",
@@ -180,22 +182,23 @@ const styles = StyleSheet.create({
 
   emoji: {
     fontSize: 80,
-    textAlign: "center",
-    marginBottom: 20,
+    marginBottom: 30,
   },
   title: {
-    fontSize: 32,
+    fontSize: 28,
     fontWeight: "bold",
     color: "#333",
-    marginBottom: 10,
+    marginBottom: 15,
     textAlign: "center",
   },
   subtitle: {
     fontSize: 16,
     color: "#666",
-    marginBottom: 30,
     textAlign: "center",
+    marginBottom: 50,
+    lineHeight: 24,
   },
+  
   gradientOptions: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -229,20 +232,15 @@ const styles = StyleSheet.create({
     backgroundColor: "#fff",
     borderRadius: 12,
     padding: 30,
-    marginBottom: 20,
-    borderWidth: 1,
-    borderColor: "#ddd",
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 3.84,
-    elevation: 5,
-    width: "100%",
+    borderRadius: 15,
+    borderWidth: 2,
+    borderColor: "#E9ECEF",
+    borderStyle: "dashed",
   },
-  cardText: {
+  placeholderText: {
     fontSize: 16,
-    color: "#666",
+    color: "#6C757D",
     textAlign: "center",
-    lineHeight: 24,
+    fontStyle: "italic",
   },
 });
