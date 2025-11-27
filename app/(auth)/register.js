@@ -33,7 +33,6 @@ export default function RegisterScreen() {
   const [success, setSuccess] = useState(null);
   const [acceptTerms, setAcceptTerms] = useState(false);
   
-  // Validação em tempo real
   const [isNameValid, setIsNameValid] = useState(false);
   const [isEmailValid, setIsEmailValid] = useState(false);
   const [passwordStrength, setPasswordStrength] = useState(0);
@@ -55,7 +54,6 @@ export default function RegisterScreen() {
   const validatePassword = (text) => {
     setPassword(text);
     
-    // Calcular força da senha
     let strength = 0;
     if (text.length >= 6) strength++;
     if (text.length >= 8) strength++;
@@ -63,7 +61,7 @@ export default function RegisterScreen() {
     if (/[0-9]/.test(text)) strength++;
     if (/[^A-Za-z0-9]/.test(text)) strength++;
     
-    setPasswordStrength(Math.min(strength, 3)); // 0-3 (fraca, média, forte)
+    setPasswordStrength(Math.min(strength, 3));
     
     // Verificar se as senhas coincidem
     setPasswordsMatch(text === confirmPassword && text.length > 0);
@@ -90,7 +88,6 @@ export default function RegisterScreen() {
   };
 
   const handleRegister = async () => {
-    // Validações
     if (!name || !email || !password || !confirmPassword) {
       setError('Preencha todos os campos corretamente.');
       setSuccess(null);
@@ -136,7 +133,7 @@ export default function RegisterScreen() {
         id: Date.now().toString(),
         name,
         email,
-        password, // Em produção, use hash!
+        password,
         createdAt: new Date().toISOString(),
       };
 
