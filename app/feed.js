@@ -137,19 +137,23 @@ export default function FeedScreen() {
             contentContainerStyle={styles.quotesContent}
           >
             {quotes.map((quote) => (
-              <LinearGradient
+              <TouchableOpacity
                 key={quote.id}
-                colors={quote.colors}
-                style={styles.quoteCard}
+                onPress={() => router.push(`/details?id=${quote.id}`)}
               >
-                <Text style={styles.quoteIcon}>❝</Text>
-                <Text style={styles.quoteText}>{quote.text}</Text>
-                <Text style={styles.quoteIcon}>❞</Text>
-                <View style={styles.quoteFooter}>
-                  <Text style={styles.quoteAuthor}>{quote.author}</Text>
-                  <Text style={styles.quoteDetail}>{quote.detail}</Text>
-                </View>
-              </LinearGradient>
+                <LinearGradient
+                  colors={quote.colors}
+                  style={styles.quoteCard}
+                >
+                  <Text style={styles.quoteIcon}>❝</Text>
+                  <Text style={styles.quoteText}>{quote.text}</Text>
+                  <Text style={styles.quoteIcon}>❞</Text>
+                  <View style={styles.quoteFooter}>
+                    <Text style={styles.quoteAuthor}>{quote.author}</Text>
+                    <Text style={styles.quoteDetail}>{quote.detail}</Text>
+                  </View>
+                </LinearGradient>
+              </TouchableOpacity>
             ))}
           </ScrollView>
         </View>

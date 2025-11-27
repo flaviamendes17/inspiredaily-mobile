@@ -18,6 +18,93 @@ export default function HomeScreen() {
   };
 
   const categories = ["Todas as frases", "Músicas", "Filmes", "Séries", "Livros", "Citações"];
+
+  const allQuotes = [
+    {
+      id: 1,
+      text: "Mas lembre-se:\nAcontece o que aconteça\nNada como um dia após o outro dia",
+      author: "Sou + Você",
+      detail: "Racionais MC's",
+      colors: ["#7799FC", "#B8A5F3"],
+      category: "Músicas",
+    },
+    {
+      id: 2,
+      text: "A vida é como andar de bicicleta. Para manter o equilíbrio, você precisa continuar se movendo",
+      author: "Albert Einstein",
+      detail: "Físico",
+      colors: ["#B8A5F3", "#E5B8F4"],
+      category: "Citações",
+    },
+    {
+      id: 3,
+      text: "O sucesso é ir de fracasso em fracasso sem perder o entusiasmo",
+      author: "Winston Churchill",
+      detail: "Estadista",
+      colors: ["#9c9df5", "#CBABF1"],
+      category: "Citações",
+    },
+    {
+      id: 4,
+      text: "A única maneira de fazer um excelente trabalho é amar o que você faz",
+      author: "Steve Jobs",
+      detail: "Empresário",
+      colors: ["#FF6B6B", "#FF8E8E"],
+      category: "Citações",
+    },
+    {
+      id: 5,
+      text: "Não é o mais forte que sobrevive, nem o mais inteligente, mas o que melhor se adapta às mudanças",
+      author: "Charles Darwin",
+      detail: "Naturalista",
+      colors: ["#4ECDC4", "#44A08D"],
+      category: "Livros",
+    },
+    {
+      id: 6,
+      text: "O futuro pertence àqueles que acreditam na beleza de seus sonhos",
+      author: "Eleanor Roosevelt",
+      detail: "Primeira-dama",
+      colors: ["#F093FB", "#F5576C"],
+      category: "Citações",
+    },
+    {
+      id: 7,
+      text: "Seja você mesmo; todas as outras pessoas já existem",
+      author: "Oscar Wilde",
+      detail: "Escritor",
+      colors: ["#43E97B", "#38F9D7"],
+      category: "Citações",
+    },
+    {
+      id: 8,
+      text: "A imaginação é mais importante que o conhecimento",
+      author: "Albert Einstein",
+      detail: "Físico",
+      colors: ["#FA709A", "#FEE140"],
+      category: "Filmes",
+    },
+    {
+      id: 9,
+      text: "Acredite em si mesmo e chegará um dia em que os outros não terão outra escolha senão acreditar com você",
+      author: "Cynthia Kersey",
+      detail: "Autora",
+      colors: ["#667eea", "#764ba2"],
+      category: "Citações",
+    },
+    {
+      id: 10,
+      text: "O que nos desafia é o que nos transforma",
+      author: "Paulo Coelho",
+      detail: "Escritor",
+      colors: ["#ffecd2", "#fcb69f"],
+      category: "Livros",
+    },
+  ];
+
+  const filteredQuotes = selectedCategory === "Músicas" 
+    ? allQuotes.filter(q => q.category === "Músicas")
+    : allQuotes.filter(q => q.category === selectedCategory);
   
   
   return (
@@ -57,6 +144,33 @@ export default function HomeScreen() {
                 >
                   {category}
                 </Text>
+              </TouchableOpacity>
+            ))}
+          </ScrollView>
+
+          <ScrollView
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            style={styles.quotesContainer}
+            contentContainerStyle={styles.quotesContent}
+          >
+            {filteredQuotes.map((quote) => (
+              <TouchableOpacity
+                key={quote.id}
+                onPress={() => router.push(`/details?id=${quote.id}`)}
+              >
+                <LinearGradient
+                  colors={quote.colors}
+                  style={styles.quoteCard}
+                >
+                  <Text style={styles.quoteIcon}>❝</Text>
+                  <Text style={styles.quoteText}>{quote.text}</Text>
+                  <Text style={styles.quoteIcon}>❞</Text>
+                  <View style={styles.quoteFooter}>
+                    <Text style={styles.quoteAuthor}>{quote.author}</Text>
+                    <Text style={styles.quoteDetail}>{quote.detail}</Text>
+                  </View>
+                </LinearGradient>
               </TouchableOpacity>
             ))}
           </ScrollView>
