@@ -7,18 +7,19 @@ import { useRouter } from "expo-router";
 export default function FeedScreen() {
   const { user } = useAuth();
   const router = useRouter();
-  const [selectedCategory, setSelectedCategory] = useState("Músicas");
+  const [selectedCategory, setSelectedCategory] = useState("Todas as frases");
 
 
   const categories = ["Todas as frases", "Músicas", "Filmes", "Séries", "Livros", "Citações"];
  
-  const quotes = [
+  const allQuotes = [
     {
       id: 1,
       text: "Mas lembre-se:\nAcontece o que aconteça\nNada como um dia após o outro dia",
       author: "Sou + Você",
       detail: "Racionais MC's",
       colors: ["#7799FC", "#B8A5F3"],
+      category: "Músicas",
     },
     {
       id: 2,
@@ -26,6 +27,7 @@ export default function FeedScreen() {
       author: "Albert Einstein",
       detail: "Físico",
       colors: ["#B8A5F3", "#E5B8F4"],
+      category: "Citações",
     },
     {
       id: 3,
@@ -33,6 +35,7 @@ export default function FeedScreen() {
       author: "Winston Churchill",
       detail: "Estadista",
       colors: ["#9c9df5", "#CBABF1"],
+      category: "Citações",
     },
     {
       id: 4,
@@ -40,6 +43,7 @@ export default function FeedScreen() {
       author: "Steve Jobs",
       detail: "Empresário",
       colors: ["#FF6B6B", "#FF8E8E"],
+      category: "Citações",
     },
     {
       id: 5,
@@ -47,6 +51,7 @@ export default function FeedScreen() {
       author: "Charles Darwin",
       detail: "Naturalista",
       colors: ["#4ECDC4", "#44A08D"],
+      category: "Livros",
     },
     {
       id: 6,
@@ -54,6 +59,7 @@ export default function FeedScreen() {
       author: "Eleanor Roosevelt",
       detail: "Primeira-dama",
       colors: ["#F093FB", "#F5576C"],
+      category: "Citações",
     },
     {
       id: 7,
@@ -61,6 +67,7 @@ export default function FeedScreen() {
       author: "Oscar Wilde",
       detail: "Escritor",
       colors: ["#43E97B", "#38F9D7"],
+      category: "Citações",
     },
     {
       id: 8,
@@ -68,6 +75,7 @@ export default function FeedScreen() {
       author: "Albert Einstein",
       detail: "Físico",
       colors: ["#FA709A", "#FEE140"],
+      category: "Filmes",
     },
     {
       id: 9,
@@ -75,6 +83,7 @@ export default function FeedScreen() {
       author: "Cynthia Kersey",
       detail: "Autora",
       colors: ["#667eea", "#764ba2"],
+      category: "Citações",
     },
     {
       id: 10,
@@ -82,8 +91,14 @@ export default function FeedScreen() {
       author: "Paulo Coelho",
       detail: "Escritor",
       colors: ["#ffecd2", "#fcb69f"],
+      category: "Livros",
     },
   ];
+
+  // Filtrar frases baseado na categoria selecionada
+  const filteredQuotes = selectedCategory === "Todas as frases" 
+    ? allQuotes 
+    : allQuotes.filter(quote => quote.category === selectedCategory);
 
 
   return (
@@ -136,7 +151,7 @@ export default function FeedScreen() {
             style={styles.quotesContainer}
             contentContainerStyle={styles.quotesContent}
           >
-            {quotes.map((quote) => (
+            {filteredQuotes.map((quote) => (
               <TouchableOpacity
                 key={quote.id}
                 onPress={() => router.push(`/details?id=${quote.id}`)}
