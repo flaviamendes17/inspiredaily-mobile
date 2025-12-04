@@ -1,5 +1,5 @@
 import React from "react";
-import { useState, useEffect, } from "react";
+import { useState, useEffect } from "react";
 import {
   View,
   Text,
@@ -8,7 +8,6 @@ import {
   ScrollView,
   TouchableOpacity,
   Alert,
-
 } from "react-native";
 import { LinearGradient } from 'expo-linear-gradient';
 import { Picker } from '@react-native-picker/picker';
@@ -25,12 +24,15 @@ export default function CreateScreen() {
 
   const handleCreate = async () => {
     if (!titulo || !frase || !autor || !categoria) {
-      Alert.alert("Erro", "Preencha todos os campos!");
+      Alert.alert("Erro", "Preencha todos os campos obrigatórios!");
       return;
     }
-
+  
     try {
-      const response = await fetch("http://10.88.199.159:3000/api/frases", {
+      const apiUrl = "http://192.168.X.X:3000"; // Substitua pelo IP correto
+      console.log("URL da API:", `${apiUrl}/api/frases`);
+  
+      const response = await fetch(`${apiUrl}/api/frases`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -44,9 +46,12 @@ export default function CreateScreen() {
           usuario_id: Number(usuarioId),
         }),
       });
-
+  
+      if (!response.ok) {
+        throw new Error(`Erro na API: ${response.statusText}`);
+      }
+  
       const data = await response.json();
-      console.log(data);
       Alert.alert("Sucesso", "Frase criada com sucesso!");
       setTitulo("");
       setFrase("");
@@ -55,10 +60,10 @@ export default function CreateScreen() {
       setArtist("");
     } catch (error) {
       console.error("Erro ao enviar frase:", error);
-      Alert.alert("Erro", "Não foi possível criar a frase.");
+      Alert.alert("Erro", "Não foi possível criar a frase. Tente novamente mais tarde.");
     }
   };
-
+  
   return (
     <ScrollView style={styles.container}>
       <View style={styles.content}>
@@ -142,7 +147,8 @@ export default function CreateScreen() {
       </View>
     </ScrollView>
   );
-}
+};
+
 
 const styles = StyleSheet.create({
   container: {
@@ -178,7 +184,6 @@ const styles = StyleSheet.create({
     width: "100%",
     marginBottom: 12,
   },
-
 
   emoji: {
     fontSize: 80,
@@ -216,6 +221,11 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     padding: 20,
     marginTop: 10,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+    elevation: 5, 
   },
   quoteText: {
     fontSize: 18,
@@ -232,7 +242,6 @@ const styles = StyleSheet.create({
     backgroundColor: "#fff",
     borderRadius: 12,
     padding: 30,
-    borderRadius: 15,
     borderWidth: 2,
     borderColor: "#E9ECEF",
     borderStyle: "dashed",
