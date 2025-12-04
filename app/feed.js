@@ -4,98 +4,61 @@ import { LinearGradient } from "expo-linear-gradient";
 import { useAuth } from "../contexts/AuthContext";
 import { useRouter, useFocusEffect } from "expo-router";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import axios from "axios";
 
 export default function FeedScreen() {
   const { user } = useAuth();
   const router = useRouter();
   const [selectedCategory, setSelectedCategory] = useState("Todas as frases");
   const [favorites, setFavorites] = useState([]);
+  const [frases, setFrases] = useState([]);
+  const [loading, setLoading] = useState(true);
 
-
-  const categories = ["Todas as frases", "Músicas", "Filmes", "Séries", "Livros", "Citações"];
- 
-  const allQuotes = [
-    {
-      id: 1,
-      text: "Mas lembre-se:\nAcontece o que aconteça\nNada como um dia após o outro dia",
-      author: "Sou + Você",
-      detail: "Racionais MC's",
-      colors: ["#7799FC", "#B8A5F3"],
-      category: "Músicas",
-    },
-    {
-      id: 2,
-      text: "A vida é como andar de bicicleta. Para manter o equilíbrio, você precisa continuar se movendo",
-      author: "Albert Einstein",
-      detail: "Físico",
-      colors: ["#B8A5F3", "#E5B8F4"],
-      category: "Citações",
-    },
-    {
-      id: 3,
-      text: "O sucesso é ir de fracasso em fracasso sem perder o entusiasmo",
-      author: "Winston Churchill",
-      detail: "Estadista",
-      colors: ["#9c9df5", "#CBABF1"],
-      category: "Citações",
-    },
-    {
-      id: 4,
-      text: "A única maneira de fazer um excelente trabalho é amar o que você faz",
-      author: "Steve Jobs",
-      detail: "Empresário",
-      colors: ["#FF6B6B", "#FF8E8E"],
-      category: "Citações",
-    },
-    {
-      id: 5,
-      text: "Não é o mais forte que sobrevive, nem o mais inteligente, mas o que melhor se adapta às mudanças",
-      author: "Charles Darwin",
-      detail: "Naturalista",
-      colors: ["#4ECDC4", "#44A08D"],
-      category: "Livros",
-    },
-    {
-      id: 6,
-      text: "O futuro pertence àqueles que acreditam na beleza de seus sonhos",
-      author: "Eleanor Roosevelt",
-      detail: "Primeira-dama",
-      colors: ["#F093FB", "#F5576C"],
-      category: "Citações",
-    },
-    {
-      id: 7,
-      text: "Seja você mesmo; todas as outras pessoas já existem",
-      author: "Oscar Wilde",
-      detail: "Escritor",
-      colors: ["#43E97B", "#38F9D7"],
-      category: "Citações",
-    },
-    {
-      id: 8,
-      text: "A imaginação é mais importante que o conhecimento",
-      author: "Albert Einstein",
-      detail: "Físico",
-      colors: ["#FA709A", "#FEE140"],
-      category: "Filmes",
-    },
-    {
-      id: 9,
-      text: "Acredite em si mesmo e chegará um dia em que os outros não terão outra escolha senão acreditar com você",
-      author: "Cynthia Kersey",
-      detail: "Autora",
-      colors: ["#667eea", "#764ba2"],
-      category: "Citações",
-    },
-    {
-      id: 10,
-      text: "O que nos desafia é o que nos transforma",
-      author: "Paulo Coelho",
-      detail: "Escritor",
-      colors: ["#ffecd2", "#fcb69f"],
-      category: "Livros",
-    },
+  const categories = [
+    "Todas as frases", 
+    "Musicas", 
+    "Filmes", 
+    "Series", 
+    "Livros", 
+    "Autorais",
+    "Motivacionais",
+    "Reflexões",
+    "Amor",
+    "Superação",
+    "positividade"
   ];
+
+  const gradientColors = [
+    ["#7799FC", "#B8A5F3"],
+    ["#B8A5F3", "#E5B8F4"],
+    ["#9c9df5", "#CBABF1"],
+    ["#FF6B6B", "#FF8E8E"],
+    ["#4ECDC4", "#44A08D"],
+    ["#F093FB", "#F5576C"],
+    ["#43E97B", "#38F9D7"],
+    ["#FA709A", "#FEE140"],
+    ["#667eea", "#764ba2"],
+    ["#ffecd2", "#fcb69f"],
+  ];
+
+  const getAllFrases = async () => {
+    try {
+      setLoading(true);
+      const response = await axios.get(`${process.env.EXPO_PUBLIC_API_URL}/frases`);
+      
+      const frasesWithColors = response.data.map((frase, index) => ({
+        ...frase,
+        colors: gradientColors[index % gradientColors.length]
+      }));
+      
+      setFrases(frasesWithColors);
+      console.log("Frases carregadas:", frasesWithColors.length);
+    } catch (error) {
+      console.error("Erro ao carregar frases:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useFocusEffect(
     React.useCallback(() => {
@@ -111,13 +74,21 @@ export default function FeedScreen() {
       };
 
       loadFavorites();
+      getAllFrases();
     }, [])
   );
 
   const filteredQuotes = selectedCategory === "Todas as frases" 
-    ? allQuotes 
-    : allQuotes.filter(quote => quote.category === selectedCategory);
+    ? frases 
+    : frases.filter(frase => frase.categoria === selectedCategory);
 
+  if (loading) {
+    return (
+      <View style={[styles.container, styles.loadingContainer]}>
+        <Text style={styles.loadingText}>Carregando frases...</Text>
+      </View>
+    );
+  }
 
   return (
     <View style={styles.container}>
@@ -162,37 +133,43 @@ export default function FeedScreen() {
             ))}
           </ScrollView>
 
-
           <ScrollView
             horizontal
             showsHorizontalScrollIndicator={false}
             style={styles.quotesContainer}
             contentContainerStyle={styles.quotesContent}
           >
-            {filteredQuotes.map((quote) => (
-              <TouchableOpacity
-                key={quote.id}
-                onPress={() => router.push(`/details?id=${quote.id}`)}
-              >
-                <LinearGradient
-                  colors={quote.colors}
-                  style={styles.quoteCard}
+            {filteredQuotes.length > 0 ? (
+              filteredQuotes.map((frase) => (
+                <TouchableOpacity
+                  key={frase.id}
+                  onPress={() => router.push(`/details?id=${frase.id}`)}
                 >
-                  {favorites.includes(quote.id) && (
-                    <View style={styles.favoriteIcon}>
-                      <Text>❤️</Text>
+                  <LinearGradient
+                    colors={frase.colors}
+                    style={styles.quoteCard}
+                  >
+                    {favorites.includes(frase.id) && (
+                      <View style={styles.favoriteIcon}>
+                        <Text>❤️</Text>
+                      </View>
+                    )}
+                    <Text style={styles.quoteIcon}>❝</Text>
+                    <Text style={styles.quoteText}>{frase.frase}</Text>
+                    <Text style={styles.quoteIcon}>❞</Text>
+                    <View style={styles.quoteFooter}>
+                      <Text style={styles.quoteAuthor}>{frase.autor_frase}</Text>
+                      <Text style={styles.quoteDetail}>{frase.titulo}</Text>
+                      <Text style={styles.categoryBadge}>{frase.categoria}</Text>
                     </View>
-                  )}
-                  <Text style={styles.quoteIcon}>❝</Text>
-                  <Text style={styles.quoteText}>{quote.text}</Text>
-                  <Text style={styles.quoteIcon}>❞</Text>
-                  <View style={styles.quoteFooter}>
-                    <Text style={styles.quoteAuthor}>{quote.author}</Text>
-                    <Text style={styles.quoteDetail}>{quote.detail}</Text>
-                  </View>
-                </LinearGradient>
-              </TouchableOpacity>
-            ))}
+                  </LinearGradient>
+                </TouchableOpacity>
+              ))
+            ) : (
+              <View style={styles.emptyContainer}>
+                <Text style={styles.emptyText}>Nenhuma frase encontrada nesta categoria</Text>
+              </View>
+            )}
           </ScrollView>
         </View>
       </ScrollView>
@@ -200,11 +177,18 @@ export default function FeedScreen() {
   );
 }
 
-
 const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: "#FFFFFF",
+  },
+  loadingContainer: {
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  loadingText: {
+    fontSize: 16,
+    color: "#666",
   },
   header: {
     paddingTop: 50,
@@ -318,6 +302,24 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: "#FFFFFF",
     opacity: 0.9,
+    marginBottom: 4,
+  },
+  categoryBadge: {
+    fontSize: 12,
+    color: "#FFFFFF",
+    opacity: 0.8,
+    fontStyle: 'italic',
+  },
+  emptyContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 20,
+  },
+  emptyText: {
+    fontSize: 16,
+    color: "#666",
+    textAlign: 'center',
   },
 });
 
