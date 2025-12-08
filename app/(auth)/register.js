@@ -188,7 +188,6 @@ export default function RegisterScreen() {
                       onBlur={() => setNameFocused(false)}
                       autoCapitalize="words"
                       autoCorrect={false}
-                      textContentType="name"
                       returnKeyType="next"
                       editable={!loading}
                     />
@@ -585,9 +584,6 @@ const styles = StyleSheet.create({
     fontWeight: '400',
     color: '#1F2937',
     paddingVertical: 0,
-    outlineStyle: 'none',
-    outlineWidth: 0,
-    borderWidth: 0,
   },
   inputHint: {
     fontSize: 11,
