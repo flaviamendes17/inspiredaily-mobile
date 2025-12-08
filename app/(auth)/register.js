@@ -169,8 +169,7 @@ export default function RegisterScreen() {
                   <Text style={styles.inputLabel}>Nome</Text>
                   <View style={[
                     styles.inputContainer,
-                    nameFocused && styles.inputContainerFocused,
-                    error && styles.inputContainerError
+                    nameFocused && styles.inputContainerFocused
                   ]}>
                     <Ionicons
                       name="person-outline"
@@ -205,8 +204,7 @@ export default function RegisterScreen() {
                   <Text style={styles.inputLabel}>Email</Text>
                   <View style={[
                     styles.inputContainer,
-                    emailFocused && styles.inputContainerFocused,
-                    error && styles.inputContainerError
+                    emailFocused && styles.inputContainerFocused
                   ]}>
                     <Ionicons
                       name="mail-outline"
@@ -249,8 +247,7 @@ export default function RegisterScreen() {
                   <Text style={styles.inputLabel}>Senha</Text>
                   <View style={[
                     styles.inputContainer,
-                    passwordFocused && styles.inputContainerFocused,
-                    (error || (password.length > 0 && password.length < 6)) && styles.inputContainerError
+                    passwordFocused && styles.inputContainerFocused
                   ]}>
                     <Ionicons
                       name="lock-closed-outline"
@@ -307,8 +304,7 @@ export default function RegisterScreen() {
                   <Text style={styles.inputLabel}>Confirmar Senha</Text>
                   <View style={[
                     styles.inputContainer,
-                    confirmPasswordFocused && styles.inputContainerFocused,
-                    (error || (confirmPassword.length > 0 && password !== confirmPassword)) && styles.inputContainerError
+                    confirmPasswordFocused && styles.inputContainerFocused
                   ]}>
                     <Ionicons
                       name="lock-closed-outline"
@@ -584,6 +580,7 @@ const styles = StyleSheet.create({
     fontWeight: '400',
     color: '#1F2937',
     paddingVertical: 0,
+    outlineStyle: 'none',
   },
   inputHint: {
     fontSize: 11,
