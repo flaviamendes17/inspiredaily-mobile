@@ -8,15 +8,18 @@ import {
   TouchableOpacity,
   Alert,
   ActivityIndicator,
+  Image,
 } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 import { Picker } from "@react-native-picker/picker";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { useRouter } from "expo-router";
+import { useRouter, useFocusEffect } from "expo-router";
+import { useAuth } from "../../contexts/AuthContext";
 import axios from "axios";
 
 export default function CreateScreen() {
   const router = useRouter();
+  const { user } = useAuth();
   const [titulo, setTitulo] = useState("");
   const [frase, setFrase] = useState("");
   const [autor, setAutor] = useState("");
@@ -26,20 +29,39 @@ export default function CreateScreen() {
   const [gradient, setGradient] = useState(["#6B8DD6", "#8E6DC6"]);
   const [usuarioId, setUsuarioId] = useState(1);
   const [loading, setLoading] = useState(false);
+  const [profileImage, setProfileImage] = useState(null);
 
 
-  useEffect(() => {
-    (async () => {
-      try {
-        const id = await AsyncStorage.getItem("usuarioId");
-        if (id) setUsuarioId(Number(id));
-        else setUsuarioId(1); // fallback se quiser
-      } catch (err) {
-        console.warn("Erro ao ler usuarioId:", err);
-        setUsuarioId(1);
-      }
-    })();
-  }, []);
+  useFocusEffect(
+    React.useCallback(() => {
+      const loadData = async () => {
+        try {
+          const id = await AsyncStorage.getItem("usuarioId");
+          if (id) setUsuarioId(Number(id));
+          else setUsuarioId(1);
+
+          const savedImage = await AsyncStorage.getItem("profileImage");
+          if (savedImage) {
+            setProfileImage(savedImage);
+          }
+        } catch (err) {
+          console.warn("Erro ao carregar dados:", err);
+          setUsuarioId(1);
+        }
+      };
+
+      loadData();
+    }, [])
+  );
+
+  const getInitials = (name) => {
+    if (!name) return "?";
+    const names = name.split(" ");
+    if (names.length >= 2) {
+      return (names[0][0] + names[names.length - 1][0]).toUpperCase();
+    }
+    return name.substring(0, 2).toUpperCase();
+  };
 
   const validate = () => {
     if (!titulo || titulo.trim().length === 0) return "Título é obrigatório";
@@ -116,53 +138,101 @@ export default function CreateScreen() {
 
   return (
     <ScrollView style={styles.container}>
+       <View style={styles.header}>
+              <TouchableOpacity 
+                style={styles.backButton} 
+                onPress={() => router.back()}
+              >
+                <Text style={styles.backButtonText}>← Voltar</Text>
+              </TouchableOpacity>
+            </View>
+
       <View style={styles.content}>
+        {/* Header com perfil do usuário */}
+        <LinearGradient
+          colors={['#6B8DD6', '#8E6DC6']}
+          style={styles.userHeader}
+        >
+          <View style={styles.userAvatarContainer}>
+            {profileImage ? (
+              <Image source={{ uri: profileImage }} style={styles.userAvatar} />
+            ) : (
+              <Text style={styles.userAvatarText}>{getInitials(user?.name)}</Text>
+            )}
+          </View>
+          <View style={styles.userInfo}>
+            <Text style={styles.userGreeting}>Olá, {user?.name?.split(" ")[0] || "Usuário"}! 👋</Text>
+            <Text style={styles.userSubtext}>Pronto para inspirar alguém hoje?</Text>
+          </View>
+        </LinearGradient>
+
         <View style={styles.FormContainer}>
-          <Text style={styles.title}>Crie uma nova frase!</Text>
-          <Text style={styles.subtitle}>
-            Preencha as informações abaixo
-          </Text>
+          <View style={styles.headerSection}>
+            <Text style={styles.emoji}>✨</Text>
+            <Text style={styles.title}>Crie uma nova frase</Text>
+            <Text style={styles.subtitle}>
+              Compartilhe sua inspiração com a comunidade
+            </Text>
+          </View>
 
-          <Text style={styles.label}>Título da publicação</Text>
-          <TextInput
-            style={styles.input}
-            placeholder="Título"
-            value={titulo}
-            onChangeText={setTitulo}
-          />
+          <View style={styles.inputGroup}>
+            <Text style={styles.label}>📝 Título da publicação</Text>
+            <TextInput
+              style={styles.input}
+              placeholder="Digite um título chamativo..."
+              placeholderTextColor="#9CA3AF"
+              value={titulo}
+              onChangeText={setTitulo}
+            />
+          </View>
 
-          <TextInput
-            style={styles.input}
-            placeholder="Frase"
-            value={frase}
-            onChangeText={setFrase}
-            multiline
-          />
+          <View style={styles.inputGroup}>
+            <Text style={styles.label}>💭 Sua frase</Text>
+            <TextInput
+              style={[styles.input, styles.textArea]}
+              placeholder="Escreva sua frase inspiradora..."
+              placeholderTextColor="#9CA3AF"
+              value={frase}
+              onChangeText={setFrase}
+              multiline
+              numberOfLines={4}
+            />
+          </View>
 
-          <Text style={styles.label}>Autor da frase</Text>
-          <TextInput
-            style={styles.input}
-            placeholder="Autor da frase"
-            value={autor}
-            onChangeText={setAutor}
-          />
+          <View style={styles.inputGroup}>
+            <Text style={styles.label}>✍️ Autor da frase</Text>
+            <TextInput
+              style={styles.input}
+              placeholder="Nome do autor"
+              placeholderTextColor="#9CA3AF"
+              value={autor}
+              onChangeText={setAutor}
+            />
+          </View>
 
-          <Text style={styles.label}>Artista (opcional)</Text>
-          <TextInput
-            style={styles.input}
-            placeholder="Artista (opcional)"
-            value={artist}
-            onChangeText={setArtist}
-          />
+          <View style={styles.inputGroup}>
+            <Text style={styles.label}>🎤 Artista (opcional)</Text>
+            <TextInput
+              style={styles.input}
+              placeholder="Nome do artista ou criador"
+              placeholderTextColor="#9CA3AF"
+              value={artist}
+              onChangeText={setArtist}
+            />
+          </View>
 
           <View style={styles.ChoseContainer}>
-            <Text style={{ marginBottom: 6, color: '#666' }}>Escolha um gradiente:</Text>
+            <Text style={styles.sectionLabel}>Escolha um gradiente</Text>
             <View style={[styles.gradientOptions, { flexWrap: 'wrap' }]}>
               {gradientColors.map((pair, idx) => (
                 <TouchableOpacity
                   key={idx}
                   onPress={() => setGradient(pair)}
-                  style={styles.swatchWrapper}
+                  style={[
+                    styles.swatchWrapper,
+                    gradient[0] === pair[0] && styles.swatchActive
+                  ]}
+                  activeOpacity={0.7}
                 >
                   <LinearGradient colors={pair} style={styles.swatch} />
                 </TouchableOpacity>
@@ -170,35 +240,61 @@ export default function CreateScreen() {
             </View>
           </View>
 
-          <View style={styles.pickerContainer}>
-            <Picker
-              selectedValue={categoria}
-              onValueChange={setCategoria}
-              style={styles.picker}
-            >
-              <Picker.Item label="Músicas" value="Musicas" />
-              <Picker.Item label="Filmes" value="Filmes" />
-              <Picker.Item label="Séries" value="Series" />
-              <Picker.Item label="Livros" value="Livros" />
-              <Picker.Item label="Autorais" value="Autorais" />
-              <Picker.Item label="Motivacionais" value="Motivacionais" />
-              <Picker.Item label="Reflexões" value="Reflexões" />
-              <Picker.Item label="Amor" value="Amor" />
-              <Picker.Item label="Superação" value="Superação" />
-              <Picker.Item label="Positividade" value="positividade" />
-            </Picker>
+          <View style={styles.inputGroup}>
+            <Text style={styles.label}>🏷️ Categoria</Text>
+            <View style={styles.pickerContainer}>
+              <Picker
+                selectedValue={categoria}
+                onValueChange={setCategoria}
+                style={styles.picker}
+              >
+                <Picker.Item label="Selecione uma categoria" value="" />
+                <Picker.Item label="🎵 Músicas" value="Musicas" />
+                <Picker.Item label="🎬 Filmes" value="Filmes" />
+                <Picker.Item label="📺 Séries" value="Series" />
+                <Picker.Item label="📚 Livros" value="Livros" />
+                <Picker.Item label="✏️ Autorais" value="Autorais" />
+                <Picker.Item label="🚀 Motivacionais" value="Motivacionais" />
+                <Picker.Item label="💡 Reflexões" value="Reflexões" />
+                <Picker.Item label="❤️ Amor" value="Amor" />
+                <Picker.Item label="💪 Superação" value="Superação" />
+                <Picker.Item label="☀️ Positividade" value="positividade" />
+              </Picker>
+            </View>
           </View>
-          <TouchableOpacity style={[styles.button, loading && { opacity: 0.6 }]} onPress={createFrases} disabled={loading}>
-            {loading ? <ActivityIndicator color="#" /> : <Text style={styles.buttonText}>Publicar</Text>}
+          <TouchableOpacity 
+            style={[styles.button, loading && styles.buttonLoading]} 
+            onPress={createFrases} 
+            disabled={loading}
+            activeOpacity={0.8}
+          >
+            {loading ? (
+              <ActivityIndicator color="#FFFFFF" size="small" />
+            ) : (
+              <Text style={styles.buttonText}>Publicar</Text>
+            )}
           </TouchableOpacity>
 
-          <Text style={[styles.subtitle, { marginTop: 20 }]}>Preview</Text>
-          <LinearGradient colors={gradient} style={styles.previewCard}>
-            <Text style={styles.quoteText}>{frase || "Sua frase aparecerá aqui"}</Text>
-            <Text style={styles.metaText}>
-              {autor || ""}{autor && artist ? " — " : ""}{artist || ""}
-            </Text>
-          </LinearGradient>
+          <View style={styles.previewSection}>
+            <Text style={styles.previewLabel}>👀 Pré-visualização</Text>
+            <Text style={styles.previewHint}>Veja como ficará sua publicação</Text>
+            <LinearGradient colors={gradient} style={styles.previewCard}>
+              <View style={styles.quoteIcon}>
+                <Text style={styles.quoteSymbol}>"</Text>
+              </View>
+              <Text style={styles.quoteText}>
+                {frase || "Sua frase inspiradora aparecerá aqui..."}
+              </Text>
+              {(autor || artist) && (
+                <View style={styles.authorContainer}>
+                  <View style={styles.authorDivider} />
+                  <Text style={styles.metaText}>
+                    {autor || "Autor"}{autor && artist ? " • " : ""}{artist || ""}
+                  </Text>
+                </View>
+              )}
+            </LinearGradient>
+          </View>
 
 
         </View>
@@ -215,145 +311,296 @@ const styles = StyleSheet.create({
   content: {
     flex: 1,
     paddingHorizontal: 20,
-    paddingTop: 60,
+    paddingTop: 20,
     paddingBottom: 40,
+  },
+  userHeader: {
+    flexDirection: "row",
+    alignItems: "center",
+    padding: 24,
+    marginBottom: 24,
+    borderRadius: 24,
+    shadowColor: "#8E6DC6",
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.3,
+    shadowRadius: 12,
+    elevation: 8,
+  },
+  userAvatarContainer: {
+    width: 56,
+    height: 56,
+    borderRadius: 28,
+    backgroundColor: "rgba(255, 255, 255, 0.3)",
+    justifyContent: "center",
+    alignItems: "center",
+    marginRight: 16,
+    borderWidth: 3,
+    borderColor: "#FFFFFF",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 8,
+    overflow: "hidden",
+  },
+  userAvatar: {
+    width: "100%",
+    height: "100%",
+    borderRadius: 28,
+  },
+  userAvatarText: {
+    fontSize: 20,
+    fontWeight: "700",
+    color: "#FFFFFF",
+  },
+  userInfo: {
+    flex: 1,
+  },
+  userGreeting: {
+    fontSize: 18,
+    fontWeight: "700",
+    color: "#FFFFFF",
+    marginBottom: 4,
+  },
+  userSubtext: {
+    fontSize: 14,
+    color: "rgba(255, 255, 255, 0.9)",
+  },
+header: {
+    paddingTop: 50,
+    paddingHorizontal: 20,
+    paddingBottom: 10,
+    backgroundColor: "#FFFFFF",
+    borderBottomWidth: 1,
+    borderBottomColor: "#E5E5E5",
+  },
+  backButton: {
+    alignSelf: "flex-start",
+  },
+  backButtonText: {
+    fontSize: 16,
+    color: "#8E6DC6",
+    fontWeight: "500",
+  },
+  scrollView: {
+    flex: 1,
   },
   FormContainer: {
     width: "100%",
     backgroundColor: "#FFFFFF",
-    padding: 24,
-    borderRadius: 16,
+    padding: 32,
+    borderRadius: 28,
     shadowColor: "#8E6DC6",
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.1,
-    shadowRadius: 12,
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.12,
+    shadowRadius: 24,
     elevation: 8,
+  },
+  headerSection: {
+    alignItems: "center",
+    marginBottom: 36,
+  },
+  emoji: {
+    fontSize: 48,
+    marginBottom: 12,
   },
   title: {
     fontSize: 32,
-    fontWeight: "700",
-    color: "#8E6DC6",
+    fontWeight: "800",
+    color: "#1F2937",
     marginBottom: 8,
+    letterSpacing: -1,
     textAlign: "center",
   },
   subtitle: {
     fontSize: 15,
-    color: "#6B7280",
-    textAlign: "center",
-    marginBottom: 32,
+    color: "#9CA3AF",
     lineHeight: 22,
+    textAlign: "center",
+  },
+  inputGroup: {
+    marginBottom: 24,
   },
   label: {
     fontSize: 14,
-    fontWeight: "600",
-    color: "#4B5563",
-    marginBottom: 8,
-    marginTop: 4,
+    fontWeight: "700",
+    color: "#374151",
+    marginBottom: 10,
+    letterSpacing: 0.2,
   },
   input: {
     width: "100%",
-    minHeight: 50,
+    minHeight: 54,
     borderColor: "#E5E7EB",
-    borderWidth: 1.5,
-    borderRadius: 12,
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-    marginBottom: 16,
-    backgroundColor: "#FAFAFA",
-    fontSize: 15,
-    color: "#1F2937",
+    borderWidth: 2,
+    borderRadius: 16,
+    paddingHorizontal: 18,
+    paddingVertical: 16,
+    backgroundColor: "#FAFBFC",
+    fontSize: 16,
+    color: "#111827",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.03,
+    shadowRadius: 3,
+    elevation: 1,
+  },
+  textArea: {
+    minHeight: 120,
+    textAlignVertical: "top",
   },
   ChoseContainer: {
     width: "100%",
-    marginBottom: 16,
-    marginTop: 8,
+    marginBottom: 24,
+  },
+  sectionLabel: {
+    fontSize: 14,
+    fontWeight: "700",
+    color: "#374151",
+    marginBottom: 14,
+    letterSpacing: 0.2,
   },
   gradientOptions: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 10,
+    gap: 12,
   },
   swatchWrapper: {
-    marginBottom: 8,
+    marginBottom: 12,
+    borderRadius: 16,
+    padding: 4,
+    borderWidth: 3,
+    borderColor: "transparent",
+    backgroundColor: "#FFFFFF",
+  },
+  swatchActive: {
+    borderColor: "#8E6DC6",
+    shadowColor: "#8E6DC6",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.5,
+    shadowRadius: 8,
+    elevation: 6,
+    transform: [{ scale: 1.05 }],
   },
   swatch: {
-    width: 48,
-    height: 48,
-    borderRadius: 12,
-    borderWidth: 2,
-    borderColor: "#E5E7EB",
+    width: 56,
+    height: 56,
+    borderRadius: 13,
   },
   pickerContainer: {
     width: "100%",
-    borderWidth: 1.5,
+    borderWidth: 2,
     borderColor: "#E5E7EB",
-    borderRadius: 12,
-    backgroundColor: "#FAFAFA",
-
-    marginBottom: 20,
+    borderRadius: 16,
+    backgroundColor: "#FAFBFC",
     overflow: "hidden",
-
-    shadowColor: "#8E6DC6",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.08,
-    shadowRadius: 4,
-    elevation: 2,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.03,
+    shadowRadius: 3,
+    elevation: 1,
   },
-
   picker: {
     width: "100%",
-    height: 50,
-    fontSize: 15,
-    color: "#1F2937",
-
-    paddingLeft: 12,
+    height: 54,
+    fontSize: 16,
+    color: "#111827",
+    paddingLeft: 14,
   },
   button: {
     backgroundColor: "#8E6DC6",
-    paddingVertical: 16,
-    borderRadius: 12,
+    paddingVertical: 18,
+    borderRadius: 18,
     alignItems: "center",
     justifyContent: "center",
-    marginTop: 8,
-    marginBottom: 24,
+    marginTop: 12,
+    marginBottom: 36,
+    minHeight: 60,
     shadowColor: "#8E6DC6",
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
-    shadowRadius: 8,
-    elevation: 6,
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.35,
+    shadowRadius: 16,
+    elevation: 8,
+  },
+  buttonLoading: {
+    opacity: 0.65,
   },
   buttonText: {
     color: "#FFFFFF",
-    fontSize: 16,
+    fontSize: 18,
+    fontWeight: "800",
+    letterSpacing: 1,
+    textTransform: "uppercase",
+  },
+  previewSection: {
+    marginTop: 8,
+  },
+  previewLabel: {
+    fontSize: 14,
     fontWeight: "700",
-    letterSpacing: 0.5,
+    color: "#374151",
+    marginBottom: 6,
+    letterSpacing: 0.2,
+  },
+  previewHint: {
+    fontSize: 13,
+    color: "#9CA3AF",
+    marginBottom: 16,
   },
   previewCard: {
     width: '100%',
-    borderRadius: 16,
-    padding: 24,
-    marginTop: 16,
+    borderRadius: 24,
+    padding: 36,
     marginBottom: 8,
-    minHeight: 120,
+    minHeight: 200,
     justifyContent: 'center',
-    shadowColor: "#8E6DC6",
-    shadowOffset: { width: 0, height: 6 },
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 12 },
     shadowOpacity: 0.25,
-    shadowRadius: 10,
-    elevation: 10,
+    shadowRadius: 20,
+    elevation: 15,
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.2)',
+  },
+  quoteIcon: {
+    position: 'absolute',
+    top: 20,
+    left: 20,
+    opacity: 0.3,
+  },
+  quoteSymbol: {
+    fontSize: 72,
+    fontWeight: '900',
+    color: '#FFFFFF',
+    lineHeight: 72,
   },
   quoteText: {
-    fontSize: 17,
-    fontWeight: "500",
+    fontSize: 20,
+    fontWeight: "700",
     color: '#FFFFFF',
-    marginBottom: 12,
     textAlign: 'center',
-    lineHeight: 26,
+    lineHeight: 32,
+    letterSpacing: 0.5,
+    textShadowColor: 'rgba(0, 0, 0, 0.1)',
+    textShadowOffset: { width: 0, height: 1 },
+    textShadowRadius: 3,
+  },
+  authorContainer: {
+    marginTop: 24,
+    alignItems: 'center',
+  },
+  authorDivider: {
+    width: 40,
+    height: 2,
+    backgroundColor: 'rgba(255, 255, 255, 0.6)',
+    marginBottom: 12,
+    borderRadius: 1,
   },
   metaText: {
-    fontSize: 13,
-    color: '#F3F4F6',
+    fontSize: 15,
+    color: 'rgba(255, 255, 255, 0.95)',
     textAlign: 'center',
-    fontStyle: 'italic',
+    fontWeight: '600',
+    letterSpacing: 0.5,
   },
 });
