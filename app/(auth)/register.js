@@ -188,7 +188,6 @@ export default function RegisterScreen() {
                       autoCapitalize="words"
                       autoCorrect={false}
                       returnKeyType="next"
-                      editable={!loading}
                     />
                     {name.length >= 3 && (
                       <View style={styles.validationIconContainer}>
@@ -225,7 +224,6 @@ export default function RegisterScreen() {
                       keyboardType="email-address"
                       textContentType="emailAddress"
                       returnKeyType="next"
-                      editable={!loading}
                     />
                     {email.length > 0 && (
                       <View style={styles.validationIconContainer}>
@@ -268,7 +266,6 @@ export default function RegisterScreen() {
                       autoCorrect={false}
                       textContentType="newPassword"
                       returnKeyType="next"
-                      editable={!loading}
                     />
                     <TouchableOpacity
                       onPress={() => setShowPassword(!showPassword)}
@@ -326,7 +323,6 @@ export default function RegisterScreen() {
                       textContentType="newPassword"
                       returnKeyType="done"
                       onSubmitEditing={handleRegister}
-                      editable={!loading}
                     />
                     <TouchableOpacity
                       onPress={() => setShowConfirmPassword(!showConfirmPassword)}
