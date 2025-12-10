@@ -323,7 +323,7 @@ const styles = StyleSheet.create({
     color: "#cf97e6ff",
     marginLeft: 20,
     marginBottom: 15,
-    marginTop: 10,
+    marginTop: 40,
   },
   headerContainer: {
     flexDirection: "row",

@@ -63,7 +63,7 @@ const styles = StyleSheet.create({
     borderRadius: 28,
     justifyContent: "center",
     alignItems: "center",
-    marginBottom: 30,
+    marginBottom: 20,
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.25,
@@ -74,8 +74,6 @@ const styles = StyleSheet.create({
     fontSize: 36,
     color: "#FFFFFF",
     fontWeight: "bold",
-    lineHeight: 40,
     textAlign: "center",
-    marginTop: -4,
   },
 });
