@@ -219,7 +219,7 @@ const styles = StyleSheet.create({
   },
   backButtonText: {
     fontSize: 16,
-    color: "#007AFF",
+    color: "#8E6DC6",
     fontWeight: "500",
   },
   scrollView: {
